@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cmath>
+#include <algorithm>
 
 template <std::size_t N, typename T = uint8_t>
 Image<N, T> nearestNeighborInterpolation(Image<N, T>* origin, float row_zoom, float col_zoom) {
@@ -35,6 +36,7 @@ inline float cubic_weight(float t) {
     }
     return 0.0f;
 }
+
 template <std::size_t N, typename T = uint8_t>
 Image<N, T> bi_LinearInterpolation(Image<N, T>* origin, float row_zoom, float col_zoom) {
     auto [originalRows, originalCols] = origin->getSize();
@@ -44,18 +46,18 @@ Image<N, T> bi_LinearInterpolation(Image<N, T>* origin, float row_zoom, float co
 
     float scaleX = static_cast<float>(originalCols) / newCols;
     float scaleY = static_cast<float>(originalRows) / newRows;
-    float originalX, originalY;
+    float srcX, srcY;
     int x0, x1, y0, y1;
 
     for (int x = 0; x < newRows; ++x) {
         for (int y = 0; y < newCols; ++y) {
-            float srcX = (x + 0.5f) * scaleY - 0.5f;
-            float srcY = (y + 0.5f) * scaleX - 0.5f;
+            srcX = (x + 0.5f) * scaleY - 0.5f;
+            srcY = (y + 0.5f) * scaleX - 0.5f;
             
-            int x0 = static_cast<int>(srcX);
-            int y0 = static_cast<int>(srcY);
-            int x1 = x0 + 1;
-            int y1 = y0 + 1;
+            x0 = static_cast<int>(srcX);
+            y0 = static_cast<int>(srcY);
+            x1 = x0 + 1;
+            y1 = y0 + 1;
             
             float dx = srcX - x0;
             float dy = srcY - y0;
@@ -67,7 +69,7 @@ Image<N, T> bi_LinearInterpolation(Image<N, T>* origin, float row_zoom, float co
             auto v11 = origin->at_cut(x1, y1);
             
             // 每个通道单独计算，直接使用 float
-            Pixel<T, N> result;
+            Pixel<N, T> result;
             for (std::size_t c = 0; c < N; ++c) {
                 float f00 = static_cast<float>(v00[c]);
                 float f01 = static_cast<float>(v01[c]);
@@ -79,8 +81,12 @@ Image<N, T> bi_LinearInterpolation(Image<N, T>* origin, float row_zoom, float co
                 float val = top * (1 - dx) + bottom * dx;
                 
                 // clamp 并转换回 T
-                val = std::clamp(val, 0.0f, 255.0f);
-                result[c] = static_cast<T>(val + 0.5f);
+                if constexpr (std::is_same_v<T, uint8_t>) {
+                    val = std::clamp(val, 0.0f, 255.0f);
+                    result[c] = static_cast<T>(val + 0.5f);
+                } else {
+                    result[c] = static_cast<T>(val);
+                }
             }
             
             processed(x, y) = result;
@@ -110,7 +116,7 @@ Image<N, T> bi_CubicInterpolation(Image<N, T>* origin, float row_zoom, float col
             float dx = srcX - x0;
             float dy = srcY - y0;
             
-            typename Image<N, T>::pixel_type result;
+            Pixel<N, T> result;
             
             // 对每个通道单独计算
             for (std::size_t c = 0; c < N; ++c) {

@@ -11,10 +11,9 @@ float zoom_num[] = {2.0f, 0.5f};
 std::string interpolator_names[][2] = {"Nearest Neighbor Interpolation", "NNI",
                                        "Bi-linear Interpolation",        "BLI",
                                        "Bi-cubic Interpolation",         "BCI"};
-template<std::size_t N, typename T = uint8_t>
-std::function<Image<N, T>(Image<N, T>*, float, float)> interpolators[] = {
-    nearestNeighborInterpolation<N, T>, bi_LinearInterpolation<N, T>,
-    bi_CubicInterpolation<N, T>};
+
+// 注意：这里需要为每个具体的 N 和 T 实例化，但函数指针不能直接存储模板函数
+// 改用 lambda 包装或直接在使用时传递函数指针
 
 bool interpolation_test(fs::path path) {
     path = fs::absolute(path);
@@ -26,12 +25,21 @@ bool interpolation_test(fs::path path) {
     if(!fs::exists(output_dir_path)) {
         fs::create_directory(output_dir_path);
     }
+    
+    // 使用函数指针数组，注意模板函数需要实例化
+    using InterpFunc = Image<1, uint8_t>(*)(Image<1, uint8_t>*, float, float);
+    InterpFunc interpolators[] = {
+        nearestNeighborInterpolation<1, uint8_t>,
+        bi_LinearInterpolation<1, uint8_t>,
+        bi_CubicInterpolation<1, uint8_t>
+    };
+    
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 2; ++j) {
             float zoom = zoom_num[j];
             for (const auto& entry: fs::directory_iterator(path)) {
-                auto image = Image<1>::createImage(entry.path());
-                image.setInterpolator(interpolators<1>[i]);
+                auto image = Image<1, uint8_t>::createImage(entry.path());
+                image.setInterpolator(interpolators[i]);
                 auto output_image_path = output_dir_path /
                                          (entry.path().stem().string() +
                                           "_processed_" +

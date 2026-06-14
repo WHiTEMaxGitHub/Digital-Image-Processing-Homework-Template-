@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-template<typename T, std::size_t N>
+template<std::size_t N, typename T>
 struct Pixel {
     T channels[N];
 
@@ -115,16 +115,16 @@ struct Pixel {
 };
 
 // 标量左乘
-template<typename T, std::size_t N>
-Pixel<T, N> operator*(T scalar, const Pixel<T, N>& pixel) {
+template<std::size_t N, typename T>
+Pixel<N, T> operator*(T scalar, const Pixel<N, T>& pixel) {
     return pixel * scalar;
 }
 
-// PixelMatrix
-template<typename T, std::size_t Channels>
+// PixelMatrix - 注意模板参数顺序: <typename T, std::size_t C>
+template<typename T, std::size_t C>
 class PixelMatrix {
 public:
-    using PixelType = Pixel<T, Channels>;
+    using PixelType = Pixel<C, T>;
 
     // 构造函数
     PixelMatrix(): rows_(0), cols_(0) {}
@@ -312,7 +312,7 @@ public:
         if (data_.empty()) return PixelType();
         PixelType result = data_[0];
         for (const auto& p: data_) {
-            for (size_t c = 0; c < Channels; ++c) {
+            for (size_t c = 0; c < C; ++c) {
                 if (p[c] < result[c]) result[c] = p[c];
             }
         }
@@ -323,7 +323,7 @@ public:
         if (data_.empty()) return PixelType();
         PixelType result = data_[0];
         for (const auto& p: data_) {
-            for (size_t c = 0; c < Channels; ++c) {
+            for (size_t c = 0; c < C; ++c) {
                 if (p[c] > result[c]) result[c] = p[c];
             }
         }
@@ -366,6 +366,7 @@ private:
     std::vector<PixelType> data_;
 };
 
+// 卷积函数 - 修正模板参数顺序
 template<typename T, std::size_t C>
 PixelMatrix<T, C> convolve(const PixelMatrix<T, C>& input,
                            const PixelMatrix<T, 1>& kernel) {
@@ -382,18 +383,15 @@ PixelMatrix<T, C> convolve(const PixelMatrix<T, C>& input,
     size_t out_cols = in_cols - k_cols + 1;
     PixelMatrix<T, C> result(out_rows, out_cols);
 
-    int k_center_row = k_rows / 2;
-    int k_center_col = k_cols / 2;
-
     for (size_t i = 0; i < out_rows; ++i) {
         for (size_t j = 0; j < out_cols; ++j) {
             typename PixelMatrix<T, C>::PixelType sum;
             for (size_t ki = 0; ki < k_rows; ++ki) {
                 for (size_t kj = 0; kj < k_cols; ++kj) {
-                    int in_i = i + ki;
-                    int in_j = j + kj;
-                    T kernel_weight = kernel(ki, kj)[0];
-                    sum += input(in_i, in_j) * kernel_weight;
+                    size_t in_i = i + ki;
+                    size_t in_j = j + kj;
+                    T kernel_weight = kernel(in_i, in_j)[0];
+                    sum = sum + input(in_i, in_j) * kernel_weight;
                 }
             }
             result(i, j) = sum;

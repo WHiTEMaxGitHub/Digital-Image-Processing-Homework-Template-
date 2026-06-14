@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 template<std::size_t N, typename T = uint8_t>
 class Image {
 public:
-    using pixel_type = Pixel<T, N>;
+    using pixel_type = Pixel<N, T>;
     inline static constexpr std::size_t channel_n = N;
     Image(): _rows(0), _cols(0) {}
     Image(int rows, int cols): _rows(rows), _cols(cols) {
@@ -200,9 +200,9 @@ typename Image<N, T>::pixel_type Image<N, T>::at_cut(int x, int y) const {
         return _data[x * _cols + y];
     }
     if (x < 0) x = 0;
-    if (x >= _rows) x = _rows - 1;
+    if (x >= static_cast<int>(_rows)) x = _rows - 1;
     if (y < 0) y = 0;
-    if (y >= _cols) y = _cols - 1;
+    if (y >= static_cast<int>(_cols)) y = _cols - 1;
     return at(x, y);
 }
 template<std::size_t N, typename T>
