@@ -1,0 +1,7 @@
+/.cache
+/build
+/digitalImageProcessing
+/compile_commands.json
+/out
+.clangd
+.clang-format
