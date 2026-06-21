@@ -10,16 +10,19 @@
 
 ## 编译与构建
 
-```bash
-# 配置 + 构建 + 编译（一步完成）
-make release-build
+项目支持 Release 和 Debug 两种模式，`make build` 使用当前已配置的模式进行编译。
 
-# 或者分步执行
+```bash
+# === 分步执行 ===
 make release          # 配置 Release 模式
 make build            # 编译
+# 或者
+make debug            # 配置 Debug 模式
+make build            # 编译
 
-# Debug 模式
-make debug-build
+# === 快捷执行（配置 + 编译） ===
+make release-build    # Release 模式一步到位
+make debug-build      # Debug 模式一步到位
 ```
 
 编译产物位于 `out/bin/digitalImageProcessing`，项目根目录会自动创建软链接，可直接运行 `./digitalImageProcessing`。
