@@ -5,6 +5,8 @@
 #include "interpolators.h"
 #include "median_filter.h"
 #include "laplacian.h"
+#include "pyramid.h"
+#include "wavelet.h"
 
 #include <filesystem>
 #include <functional>
@@ -184,5 +186,116 @@ inline bool laplacianSharpen_test(fs::path path) {
     }
 
     std::cout << "Laplacian Sharpen Finished." << std::endl;
+    return true;
+}
+
+// ==================== 任务3-1：金字塔 ====================
+
+inline bool pyramid_test(fs::path path) {
+    path = fs::absolute(path);
+    if (!fs::exists(path) || !fs::is_directory(path))
+        throw std::runtime_error("文件夹不存在或路径无效");
+    auto output_dir = path / "../output";
+    output_dir = output_dir.lexically_normal();
+    if (!fs::exists(output_dir)) fs::create_directory(output_dir);
+
+    int levels = 4; // 金字塔级数
+
+    for (const auto& entry : fs::directory_iterator(path)) {
+        auto image = Image<1, uint8_t>::createImage(entry.path());
+        std::string stem = entry.path().stem().string();
+        std::string ext = entry.path().extension().string();
+
+        // 近似金字塔
+        auto approx = buildApproximationPyramid(image, levels);
+        for (int l = 0; l <= levels; ++l) {
+            auto out_path = output_dir / (stem + "_approx_lv" + std::to_string(l) + ext);
+            approx[l].save(out_path);
+            std::cout << "  Approx level " << l << " (" << approx[l].rows()
+                      << "x" << approx[l].cols() << ") -> "
+                      << out_path.filename().string() << std::endl;
+        }
+
+        // 预测残差金字塔
+        auto residual = buildResidualPyramid(image, levels);
+        for (int l = 0; l <= levels; ++l) {
+            auto out_path = output_dir / (stem + "_residual_lv" + std::to_string(l) + ext);
+            residual[l].save(out_path);
+            std::cout << "  Residual level " << l << " (" << residual[l].rows()
+                      << "x" << residual[l].cols() << ") -> "
+                      << out_path.filename().string() << std::endl;
+        }
+    }
+
+    std::cout << "Pyramid (Approximation + Residual) Finished." << std::endl;
+    return true;
+}
+
+// ==================== 任务3-2：二维快速小波变换 ====================
+
+inline bool waveletTransform_test(fs::path path) {
+    path = fs::absolute(path);
+    if (!fs::exists(path) || !fs::is_directory(path))
+        throw std::runtime_error("文件夹不存在或路径无效");
+    auto output_dir = path / "../output";
+    output_dir = output_dir.lexically_normal();
+    if (!fs::exists(output_dir)) fs::create_directory(output_dir);
+
+    auto wf = db4Filter();
+    int levels = 3;
+
+    for (const auto& entry : fs::directory_iterator(path)) {
+        auto image = Image<1, uint8_t>::createImage(entry.path());
+        std::string stem = entry.path().stem().string();
+        std::string ext = entry.path().extension().string();
+
+        // 单级分解（2×2 拼接图）
+        auto result_1 = fwt2d_multilevel(image, wf, 1);
+        auto out_path_1 = output_dir / (stem + "_fwt_lv1" + ext);
+        result_1.save(out_path_1);
+        std::cout << "  FWT level 1 -> "
+                  << out_path_1.filename().string() << std::endl;
+
+        // 多级分解
+        auto result_n = fwt2d_multilevel(image, wf, levels);
+        auto out_path_n = output_dir / (stem + "_fwt_lv" + std::to_string(levels) + ext);
+        result_n.save(out_path_n);
+        std::cout << "  FWT level " << levels << " -> "
+                  << out_path_n.filename().string() << std::endl;
+    }
+
+    std::cout << "2D Fast Wavelet Transform Finished." << std::endl;
+    return true;
+}
+
+// ==================== 任务3-3：小波边缘检测 ====================
+
+inline bool waveletEdgeDetection_test(fs::path path) {
+    path = fs::absolute(path);
+    if (!fs::exists(path) || !fs::is_directory(path))
+        throw std::runtime_error("文件夹不存在或路径无效");
+    auto output_dir = path / "../edge_output";
+    output_dir = output_dir.lexically_normal();
+    if (!fs::exists(output_dir)) fs::create_directory(output_dir);
+
+    auto wf = db4Filter();
+
+    for (const auto& entry : fs::directory_iterator(path)) {
+        auto image = Image<1, uint8_t>::createImage(entry.path());
+        std::string stem = entry.path().stem().string();
+        std::string ext = entry.path().extension().string();
+
+        for (float th : {1.0f, 1.5f, 2.0f}) {
+            auto edge = waveletEdgeDetection(image, wf, 1, th);
+            char buf[16];
+            std::snprintf(buf, sizeof(buf), "%.1f", th);
+            auto out_path = output_dir / (stem + "_edge_th" + buf + ext);
+            edge.save(out_path);
+            std::cout << "  Edge th=" << th << " -> "
+                      << out_path.filename().string() << std::endl;
+        }
+    }
+
+    std::cout << "Wavelet Edge Detection Finished." << std::endl;
     return true;
 }
