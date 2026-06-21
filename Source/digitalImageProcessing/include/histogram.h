@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <string>
 
 // 计算累积分布函数 (CDF)
 inline std::vector<float> computeCDF(const std::vector<size_t>& hist, size_t total_pixels) {
@@ -19,7 +20,7 @@ inline std::vector<float> computeCDF(const std::vector<size_t>& hist, size_t tot
     return cdf;
 }
 
-// 直方图均衡化
+// 直方图均衡化（单次）
 template<std::size_t N, typename T = uint8_t>
 Image<N, T> histogramEqualization(const Image<N, T>& image) {
     static_assert(std::is_same_v<T, uint8_t>, "Only supports uint8_t type");
@@ -59,6 +60,63 @@ Image<N, T> histogramEqualization(const Image<N, T>& image) {
         }
     }
     
+    return result;
+}
+
+// 比较两张图像是否完全相同
+template<std::size_t N, typename T = uint8_t>
+bool imageEqual(const Image<N, T>& a, const Image<N, T>& b) {
+    if (a.rows() != b.rows() || a.cols() != b.cols()) return false;
+    for (size_t i = 0; i < a.rows(); ++i) {
+        for (size_t j = 0; j < a.cols(); ++j) {
+            for (std::size_t c = 0; c < N; ++c) {
+                if (a.at(i, j)[c] != b.at(i, j)[c]) return false;
+            }
+        }
+    }
+    return true;
+}
+
+// 迭代直方图均衡化
+// max_iterations: 最大迭代次数
+// 返回 pair<最终图像, 实际迭代次数>
+template<std::size_t N, typename T = uint8_t>
+std::pair<Image<N, T>, int> histogramEqualizationIterative(
+    const Image<N, T>& image, 
+    int max_iterations = -1) 
+{
+    static_assert(std::is_same_v<T, uint8_t>, "Only supports uint8_t type");
+    
+    Image<N, T> current = image;
+    int iter = 0;
+    
+    while (true) {
+        Image<N, T> next = histogramEqualization(current);
+        iter++;
+        
+        // 检查是否收敛（图像不再变化）
+        if (imageEqual(current, next)) {
+            return {next, iter};
+        }
+        
+        current = next;
+        
+        // 检查是否达到最大迭代次数
+        if (max_iterations > 0 && iter >= max_iterations) {
+            return {current, iter};
+        }
+    }
+}
+
+// 执行指定次数的直方图均衡化（不检查收敛）
+template<std::size_t N, typename T = uint8_t>
+Image<N, T> histogramEqualizationN(const Image<N, T>& image, int n) {
+    static_assert(std::is_same_v<T, uint8_t>, "Only supports uint8_t type");
+    
+    Image<N, T> result = image;
+    for (int i = 0; i < n; ++i) {
+        result = histogramEqualization(result);
+    }
     return result;
 }
 
