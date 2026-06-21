@@ -9,7 +9,8 @@ int main(int argc, char** argv) {
         std::cout << argv[0] << " <作业编号> <输入图片文件夹路径>."
                   << std::endl;
         std::cout << "作业编号: 1, 2-1(直方图均衡化), 2-2(中值滤波), 2-3(拉普拉斯锐化),"
-                  << " 3-1(金字塔), 3-2(小波变换), 3-3(小波边缘检测)"
+                  << " 3-1(金字塔), 3-2(小波变换), 3-3(小波边缘检测),"
+                  << " 4-1(二值形态学), 4-2(灰度形态学)"
                   << std::endl;
         return 1;
     }
@@ -38,6 +39,11 @@ int main(int argc, char** argv) {
                         std::cout << "test 3-1 succeeded" << std::endl;
                     else
                         std::cout << "test 3-1 failed" << std::endl;
+                } else if (major == '4') {
+                    if (binaryMorphology_test(argv[2]))
+                        std::cout << "test 4-1 succeeded" << std::endl;
+                    else
+                        std::cout << "test 4-1 failed" << std::endl;
                 }
                 break;
             case '2':
@@ -51,6 +57,11 @@ int main(int argc, char** argv) {
                         std::cout << "test 3-2 succeeded" << std::endl;
                     else
                         std::cout << "test 3-2 failed" << std::endl;
+                } else if (major == '4') {
+                    if (grayMorphology_test(argv[2]))
+                        std::cout << "test 4-2 succeeded" << std::endl;
+                    else
+                        std::cout << "test 4-2 failed" << std::endl;
                 }
                 break;
             case '3':
@@ -74,7 +85,7 @@ int main(int argc, char** argv) {
     }
     else {
         std::cout << "参数 " << argv[1]
-                  << " 错误, 模式应当为'1'或'2-{1,2,3}'/'3-{1,2,3}'."
+                  << " 错误, 模式应当为'1'或'2-{1,2,3}'/'3-{1,2,3}'/'4-{1,2}'."
                   << std::endl;
         return 1;
     }

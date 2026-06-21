@@ -1,6 +1,6 @@
 # 数字图像处理作业
 
-基于 C++ 和 OpenCV 的数字图像处理作业项目，实现图像插值、直方图均衡化、中值滤波、拉普拉斯锐化、金字塔、小波变换和小波边缘检测等功能。
+基于 C++ 和 OpenCV 的数字图像处理作业项目，实现图像插值、直方图均衡化、中值滤波、拉普拉斯锐化、金字塔、小波变换、小波边缘检测和形态学处理等功能。
 
 ## 依赖
 
@@ -39,6 +39,8 @@ make debug-build
 | `3-1` | 作业 3-1 | 近似金字塔与预测残差金字塔（教材例7.1） |
 | `3-2` | 作业 3-2 | 二维快速小波变换 FWT（教材例7.12） |
 | `3-3` | 作业 3-3 | 基于小波的边缘检测（教材例7.13） |
+| `4-1` | 作业 4-1 | 二值形态学（长字符提取、空洞填充、边界清除） |
+| `4-2` | 作业 4-2 | 灰度形态学（顶帽变换、粒度测定、分水岭预处理） |
 
 ### 示例
 
@@ -63,6 +65,12 @@ make debug-build
 
 # 作业 3-3：小波边缘检测 → 处理 demo-2.tif
 ./digitalImageProcessing 3-3 data/03/wavelet/input
+
+# 作业 4-1：二值形态学 → 处理 Fig0929(a)(text_image).tif
+./digitalImageProcessing 4-1 data/04/binary/input
+
+# 作业 4-2：灰度形态学 → 处理 3 张灰度图像
+./digitalImageProcessing 4-2 data/04/gray/input
 ```
 
 ## 目录结构
@@ -79,6 +87,7 @@ digitalImageProcessing/
 │   │   ├── laplacian.h       # 拉普拉斯锐化（4邻域 / 8邻域）
 │   │   ├── pyramid.h         # 金字塔（近似 / 预测残差）
 │   │   ├── wavelet.h         # 小波变换 + 小波边缘检测
+│   │   ├── morphology.h      # 形态学（二值 + 灰度）
 │   │   └── tests.h           # 测试函数（统一入口）
 │   └── src/
 │       └── main.cpp          # 主函数（命令行调度）
@@ -96,14 +105,20 @@ digitalImageProcessing/
 │   │   └── laplacianSharpen/
 │   │       ├── input/        #   2-3 输入：moon.jpg
 │   │       └── output/       #   2-3 输出
-│   └── 03/                   # 作业 3
-│       ├── pyramid/
-│       │   ├── input/        #   3-1 输入：demo-1.jpg
-│       │   └── output/       #   3-1 输出
-│       └── wavelet/
-│           ├── input/        #   3-2/3-3 输入：demo-2.tif
-│           ├── output/       #   3-2 输出（小波变换拼接图）
-│           └── edge_output/  #   3-3 输出（边缘检测结果）
+│   ├── 03/                   # 作业 3
+│   │   ├── pyramid/
+│   │   │   ├── input/        #   3-1 输入：demo-1.jpg
+│   │   │   └── output/       #   3-1 输出
+│   │   └── wavelet/
+│   │       ├── input/        #   3-2/3-3 输入：demo-2.tif
+│   │       └── output/       #   3-2 输出（小波变换拼接图）
+│   └── 04/                   # 作业 4
+│       ├── binary/
+│       │   ├── input/        #   4-1 输入：Fig0929(a)(text_image).tif
+│       │   └── output/       #   4-1 输出
+│       └── gray/
+│           ├── input/        #   4-2 输入：Fig0940(a)/Fig0941(a)/Fig0943(a)
+│           └── output/       #   4-2 输出
 ├── out/bin/                  # 编译产物
 ├── Makefile
 ├── CMakeLists.txt
@@ -112,7 +127,7 @@ digitalImageProcessing/
 
 ## 输出命名规范
 
-输出文件自动生成在同级 `output/` 目录下（边缘检测输出至 `edge_output/`），命名规则如下。
+输出文件自动生成在同级 `output/` 目录下，命名规则如下。
 
 ### 作业 1：图像插值
 
@@ -212,6 +227,38 @@ digitalImageProcessing/
 - `demo-2_edge_th1.0.tif`
 - `demo-2_edge_th2.0.tif`
 
+### 作业 4-1：二值形态学
+
+```
+{原文件名}_long_char.{扩展名}    # 长字符提取（图9.29）
+{原文件名}_hole_fill.{扩展名}    # 空洞填充（图9.31）
+{原文件名}_border_clear.{扩展名} # 边界清除（图9.32）
+```
+
+先进行阈值二值化（th=128），再分别执行对应的形态学操作。
+
+**示例：**
+- `Fig0929(a)(text_image)_long_char.tif`
+- `Fig0929(a)(text_image)_hole_fill.tif`
+- `Fig0929(a)(text_image)_border_clear.tif`
+
+### 作业 4-2：灰度形态学
+
+```
+{原文件名}_tophat.{扩展名}         # 顶帽变换（图9.40）
+{原文件名}_tophat_binary.{扩展名}  # 顶帽 + Otsu 阈值分割
+{原文件名}_granulometry.{扩展名}   # 粒度测定（图9.41）
+{原文件名}_watershed_grad.{扩展名} # 分水岭梯度（图9.43）
+{原文件名}_watershed_markers.{扩展名} # 分水岭标记
+```
+
+程序根据输入图片文件名自动匹配对应的操作。
+
+**示例：**
+- `Fig0940_tophat.tif`
+- `Fig0941_granulometry.tif`
+- `Fig0943_watershed_grad.tif`
+
 ## 图片分配总表
 
 | 作业 | 模式参数 | 输入图片 | 尺寸 |
@@ -223,3 +270,5 @@ digitalImageProcessing/
 | 3-1 金字塔 | `3-1` | `demo-1.jpg` | 512×512 |
 | 3-2 小波变换 | `3-2` | `demo-2.tif` | 128×128 |
 | 3-3 小波边缘检测 | `3-3` | `demo-2.tif` | 128×128 |
+| 4-1 二值形态学 | `4-1` | `Fig0929(a)(text_image).tif` | — |
+| 4-2 灰度形态学 | `4-2` | `Fig0940(a)`, `Fig0941(a)`, `Fig0943(a)` | — |
