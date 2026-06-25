@@ -1,10 +1,14 @@
-# 数字图像处理作业
+# 数字图像处理作业 — 代码框架
 
-基于 C++ 和 OpenCV 的数字图像处理作业项目，实现图像插值、直方图均衡化、中值滤波、拉普拉斯锐化、金字塔、小波变换、小波边缘检测和形态学处理等功能。
+基于 C++ 和 OpenCV 的数字图像处理项目框架。本分支（`main`）为**纯框架**，仅包含基础设施（`pixel.h`、`image.h`）、构建系统和测试调度代码。所有算法函数均为空壳占位。
 
-> 💡 **本仓库同时提供代码模板**，适合独立完成作业：
-> 参见 [模板仓库](https://github.com/WHiTEMaxGitHub/Digital-Image-Processing-Homework-Template-) 或本项目中的 `template/homework1` ~ `template/homework4` 分支。
-> 切换到对应作业的模板分支后，只需实现标记为 TODO 的核心算法函数即可编译运行。
+> 💡 **代码模板分支**（含 TODO 骨架、Doxygen 注释、算法步骤提示）：
+> - `template/homework1` — 作业1：图像插值
+> - `template/homework2` — 作业2：直方图均衡化 / 中值滤波 / 拉普拉斯锐化
+> - `template/homework3` — 作业3：金字塔 / 小波变换 / 小波边缘检测
+> - `template/homework4` — 作业4：形态学处理
+>
+> 切换到对应分支后，只需实现标记为 TODO 的核心算法函数即可编译运行。
 
 ## 依赖
 
