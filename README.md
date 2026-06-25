@@ -1,8 +1,46 @@
-# 数字图像处理作业 — 代码框架
+# 数字图像处理作业 — 作业2：直方图均衡化 / 中值滤波 / 拉普拉斯锐化
 
-基于 C++ 和 OpenCV 的数字图像处理项目框架。本分支（`main`）为**纯框架**，仅包含基础设施（`pixel.h`、`image.h`）、构建系统和测试调度代码。所有算法函数均为空壳占位。
+基于 C++ 和 OpenCV 的数字图像处理模板项目。本分支为 **作业2** 的代码模板。
 
-> 💡 **代码模板分支**（含 TODO 骨架、Doxygen 注释、算法步骤提示）：
+## 模板使用指南
+
+> **你只需实现 3 个文件中标记为 TODO 的函数。**
+
+### 1. 克隆并切换分支
+
+```bash
+git clone git@github.com:WHiTEMaxGitHub/Digital-Image-Processing-Homework-Template-.git
+cd Digital-Image-Processing-Homework-Template-
+git checkout template/homework2
+```
+
+### 2. 需要实现的函数
+
+| 文件 | 函数 | 模式 |
+|------|------|------|
+| `histogram.h` | `histogramEqualization`、`histogramEqualizationN`、`histogramEqualizationIterative` | `2-1` |
+| `median_filter.h` | `medianFilter`、`medianFilterN`、`medianFilterIterative` | `2-2` |
+| `laplacian.h` | `laplacianSharpen` | `2-3` |
+
+已提供：`computeCDF`、`imageEqual`、`printHistogram`、`laplacianSharpen4/8`。
+
+### 3. 编译运行
+
+```bash
+make release-build
+./digitalImageProcessing 2-1 data/02/histogramEqualization/input
+./digitalImageProcessing 2-2 data/02/medianFilter/input
+./digitalImageProcessing 2-3 data/02/laplacianSharpen/input
+```
+
+### 4. 提交
+
+```bash
+git add -A && git commit -m "feat: 完成作业2"
+
+---
+
+> 💡 **其他模板分支**：
 > - `template/homework1` — 作业1：图像插值
 > - `template/homework2` — 作业2：直方图均衡化 / 中值滤波 / 拉普拉斯锐化
 > - `template/homework3` — 作业3：金字塔 / 小波变换 / 小波边缘检测
