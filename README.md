@@ -1,14 +1,52 @@
-# 数字图像处理作业 — 代码框架
+# 数字图像处理作业 — 作业1：图像插值
 
-基于 C++ 和 OpenCV 的数字图像处理项目框架。本分支（`main`）为**纯框架**，仅包含基础设施（`pixel.h`、`image.h`）、构建系统和测试调度代码。所有算法函数均为空壳占位。
+基于 C++ 和 OpenCV 的数字图像处理模板项目。本分支为 **作业1（图像插值）** 的代码模板。
 
-> 💡 **代码模板分支**（含 TODO 骨架、Doxygen 注释、算法步骤提示）：
-> - `template/homework1` — 作业1：图像插值
-> - `template/homework2` — 作业2：直方图均衡化 / 中值滤波 / 拉普拉斯锐化
-> - `template/homework3` — 作业3：金字塔 / 小波变换 / 小波边缘检测
-> - `template/homework4` — 作业4：形态学处理
->
-> 切换到对应分支后，只需实现标记为 TODO 的核心算法函数即可编译运行。
+## 模板使用指南
+
+> 所有基础设施和测试代码已就绪。**你只需实现标记为 TODO 的 3 个插值函数。**
+
+### 1. 克隆仓库并切换分支
+
+```bash
+git clone git@github.com:WHiTEMaxGitHub/Digital-Image-Processing-Homework-Template-.git
+cd Digital-Image-Processing-Homework-Template-
+git checkout template/homework1
+```
+
+### 2. 找到需要实现的函数
+
+```bash
+grep -n "TODO" Source/digitalImageProcessing/include/interpolators.h
+```
+
+| 函数 | 说明 |
+|------|------|
+| `nearestNeighborInterpolation` | 最近邻插值 |
+| `bi_LinearInterpolation` | 双线性插值 |
+| `bi_CubicInterpolation` | 双三次插值 |
+
+文件中已提供 `cubic_weight()`（双三次权重函数），可直接使用。
+
+### 3. 编译
+
+```bash
+make release-build
+```
+
+### 4. 运行测试
+
+```bash
+./digitalImageProcessing 1 data/01/interpolation/input
+```
+
+输出图片位于 `data/01/interpolation/output/`。
+
+### 5. 提交作业
+
+```bash
+git add -A && git commit -m "feat: 完成作业1 — 图像插值"
+```
 
 ## 依赖
 
