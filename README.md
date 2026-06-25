@@ -2,6 +2,10 @@
 
 基于 C++ 和 OpenCV 的数字图像处理作业项目，实现图像插值、直方图均衡化、中值滤波、拉普拉斯锐化、金字塔、小波变换、小波边缘检测和形态学处理等功能。
 
+> 💡 **本仓库同时提供代码模板**，适合独立完成作业：
+> 参见 [模板仓库](https://github.com/WHiTEMaxGitHub/Digital-Image-Processing-Homework-Template-) 或本项目中的 `template/homework1` ~ `template/homework4` 分支。
+> 切换到对应作业的模板分支后，只需实现标记为 TODO 的核心算法函数即可编译运行。
+
 ## 依赖
 
 - OpenCV 4.x
